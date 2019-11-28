@@ -20,18 +20,24 @@ tf.compat.v1.enable_eager_execution()
 #--------------------------------------------------------------------------------------------------
 class FLAGS:
     TFRECORDS_DIR   = '/media/ansary/DriveData/HandAction/SHORT/DataSet/TFRECORD/Train/'
-    IMAGE_DIM       = 256
-    NB_CHANNELS     = 3
-    BATCH_SIZE      = 2
-    SHUFFLE_BUFFER  = 800
+    IMAGE_DIM       = 128
+    NB_CHANNELS     = 1
+    BATCH_SIZE      = 10
+    SHUFFLE_BUFFER  = 4
     MODE            = 'Train'
     NB_CLASSES      = 17
     MIN_SEQ_LEN     = 8
 #--------------------------------------------------------------------------------------------------
-NB_TOTAL_DATA       = 20
+NB_TOTAL_DATA       = 200
+NB_EVAL_DATA        = 100
+STEPS_PER_EPOCH     =  NB_TOTAL_DATA //FLAGS.BATCH_SIZE 
+VALIDATION_STEPS    =  NB_EVAL_DATA //FLAGS.BATCH_SIZE 
 N_EPOCHS            = 2
-STEPS_PER_EPOCH     = NB_TOTAL_DATA //FLAGS.BATCH_SIZE 
 def train_in_fn():
+    return data_input_fn(FLAGS)
+def eval_in_fn():
+    FLAGS.TFRECORDS_DIR='/media/ansary/DriveData/HandAction/SHORT/DataSet/TFRECORD/Eval/'
+    FLAGS.MODE='Eval'
     return data_input_fn(FLAGS) 
 
 def check_data():
@@ -42,7 +48,7 @@ def check_data():
     label=y[0]
     print(label)
     for feat in feats:
-        plt.imshow(feat)
+        plt.imshow(np.squeeze(feat))
         plt.show()
 
 def dummy_model(FLAGS):
@@ -57,9 +63,14 @@ def train_debug():
     model.summary()
     plot_model(model,to_file='dummy.png',show_layer_names=True,show_shapes=True)
     model.compile(loss='categorical_crossentropy',optimizer=Adam())
-    model.fit(train_in_fn(),epochs= N_EPOCHS,steps_per_epoch=10,verbose=1)
+    model.fit(train_in_fn(),
+            epochs= N_EPOCHS,
+            steps_per_epoch=STEPS_PER_EPOCH, 
+            validation_data=eval_in_fn(),
+            validation_steps=VALIDATION_STEPS,
+            verbose=1)
 
 if __name__ == "__main__":
-    #check_data()
+    check_data()
     train_debug()
     

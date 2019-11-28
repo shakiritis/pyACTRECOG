@@ -151,10 +151,10 @@ class DataSet(object):
                #'class_ids':self.class_list}]
         dump_data(self.info_json,data)
 #--------------------------------------------------------------------------------------------------------------------------------------------------
-def read_image(image_path,image_dim=256):
-    img=tf.keras.preprocessing.image.load_img(image_path,target_size=(image_dim,image_dim))
-    x=tf.keras.preprocessing.image.img_to_array(img)
-    x=x.astype(np.float32) / 255.0
+def read_image(image_path,image_dim):
+    img=tf.keras.preprocessing.image.load_img(image_path,target_size=(image_dim,image_dim),color_mode='grayscale')
+    x=tf.keras.preprocessing.image.img_to_array(img,dtype=np.uint8)
+    x=np.expand_dims(x,axis=-1)
     return x
 def preprocess_sequence(sequnce_data,classes,STATS,img_iden='color_',img_ext='.png'):
     img_dir=sequnce_data['path']
@@ -170,7 +170,7 @@ def preprocess_sequence(sequnce_data,classes,STATS,img_iden='color_',img_ext='.p
     return X,Y
 def sequencesToRecord(sequences,classes,ds_dir,STATS,mode):
     LOG_INFO('Creating TFrecords:{}'.format(mode))
-    FS=STATS.BATCH_SIZE//2
+    FS=STATS.BATCH_SIZE*5
     for i in range(0,len(sequences),FS):
         sequence_list= sequences[i:i+FS]        
         rec_num = i // FS
@@ -190,7 +190,7 @@ def saveTFrecord(ds_dir,rec_num,sequence_list,mode,classes,STATS):
         for seqence in _pbar(sequence_list):
             X,Y=preprocess_sequence(seqence,classes,STATS)
             # feature desc
-            data ={ 'feats':tf.train.Feature(float_list=tf.train.FloatList(value=X.flatten())),
+            data ={ 'feats':tf.train.Feature(int64_list=tf.train.Int64List(value=X.flatten())),
                     'label':tf.train.Feature(int64_list=tf.train.Int64List(value=[Y]))
             }
             features=tf.train.Features(feature=data)
@@ -207,17 +207,17 @@ def data_input_fn(FLAGS):
         NB_CHANNELS     = Depth of Image
         BATCH_SIZE      = batch size for traning
         SHUFFLE_BUFFER  = Buffer Size > Batch Size
-        MODE            = 'Train/Test'
+        MODE            = 'Train/Test/Eval'
         NB_CLASSES      = Number of classes
         MIN_SEQ_LEN     = Minimul Seqlen for the data
     '''
     
     def _parser(example):
-        data  ={ 'feats':tf.io.FixedLenFeature((FLAGS.MIN_SEQ_LEN,FLAGS.IMAGE_DIM,FLAGS.IMAGE_DIM,FLAGS.NB_CHANNELS),tf.float32),
+        data  ={ 'feats':tf.io.FixedLenFeature((FLAGS.MIN_SEQ_LEN,FLAGS.IMAGE_DIM,FLAGS.IMAGE_DIM,FLAGS.NB_CHANNELS),tf.int64),
                  'label':tf.io.FixedLenFeature((),tf.int64)
         }    
         parsed_example=tf.io.parse_single_example(example,data)
-        feats=tf.cast(parsed_example['feats'],tf.float32)
+        feats=tf.cast(parsed_example['feats'],tf.float32)/255.0
         feats=tf.reshape(feats,(FLAGS.MIN_SEQ_LEN,FLAGS.IMAGE_DIM,FLAGS.IMAGE_DIM,FLAGS.NB_CHANNELS))
         
         idx = tf.cast(parsed_example['label'], tf.int64)
@@ -227,7 +227,7 @@ def data_input_fn(FLAGS):
     file_paths=glob(os.path.join(FLAGS.TFRECORDS_DIR,'{}*.tfrecord'.format(FLAGS.MODE)))
     dataset = tf.data.TFRecordDataset(file_paths)
     dataset = dataset.map(_parser)
-    #dataset = dataset.shuffle(FLAGS.SHUFFLE_BUFFER,reshuffle_each_iteration=True)
+    dataset = dataset.shuffle(FLAGS.SHUFFLE_BUFFER,reshuffle_each_iteration=True)
     dataset = dataset.repeat()
     dataset = dataset.batch(FLAGS.BATCH_SIZE,drop_remainder=True)
     return dataset

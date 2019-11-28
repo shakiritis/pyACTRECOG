@@ -18,40 +18,35 @@ Dataset is taken from [Hand Action Detection from Depth Sequences](https://web.b
 
 * Get a general idea about the [dataset info](/info/data.md) 
 * The **Train1** and **Train2** are combined in one single folder named **Train**
-* The **Test** and **TestDetection** from the original source are kept and all three folders are to be in the same directory which should have the following folder tree:
+* A random user is chosen for **Eval** Data Within **Train** data
+* The **Test** the original source are kept
 
+> Folder tree for the **src_path** for **main.py** in implementation case is as follows:
+
+
+            ├── Eval
+            │   └── LN
             ├── Test
             │   ├── alvin
-            │   │   ├── asl-bathroom
-            │   │   ├── asl-blue
-            ....................
-            │   │   ├── ui-keyTap
-            │   │   ├── ui-screenTap
-            │   │   └── ui-swipe
             │   ├── etienne
-            ................
             │   └── xiaowei
-            ...............
-            ├── TestDetection
-            │   ├── alvin_test
-            ..................
-            │   ├── xiaowei_test
-            │   └── zhaohe
             └── Train
                 ├── aiyang
-                │   ├── asl-bathroom
-                .....................
-                .....................
-                │   ├── ui-doubleclick
-                │   ├── ui-keyTap
-                │   ├── ui-screenTap
-                │   └── ui-swipe
+                ├── ashwin
+                ├── biru
+                ├── chi
+                ├── chris
+                ├── gulin
+                ├── justin
+                ├── lakshmi
+                ├── malay
+                ├── marc
+                ├── michael
+                ├── xuchi
+                ├── yizhou
                 └── yongzhong
-                    ├── asl-bathroom
-                    .................
-                    ├── ui-screenTap
-                    └── ui-swipe
 
+            
 
 * run **main.py**
 
@@ -75,19 +70,22 @@ The complete preprocessing may take huge time and also cause to crash the system
             ├── Test
             │   ├── action.json
             │   └── info.json
+            ├── Eval
+            │   ├── action.json
+            │   └── info.json
             ├── TFRECORD
             │   ├── Test
             │   │   ├── Test_0.tfrecord
-            ...........................
-            ...........................
             ...........................
             │   │   └── Test_X.tfrecord
             │   └── Train
             │       ├── Train_0.tfrecord
             ............................
-            ............................
-            ............................
             │       └── Train_X.tfrecord
+            │   └── Eval
+            │       ├── Eval_0.tfrecord
+            ............................
+            │       └── Eval_X.tfrecord
             └── Train
                 ├── action.json
                 └── info.json
@@ -112,6 +110,3 @@ For using colab, a **bucket** must be created in **GCS** and connected for:
 * tfrecords
 * checkpoints (custom training Loop)
 
-# TODO
-
-* Add CNN-LSTM 

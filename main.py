@@ -20,8 +20,8 @@ parser.add_argument("dest_path", help='Destination Data Folder')
 args = parser.parse_args()
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 class STATS:
-    IMAGE_DIM   =   256
-    NB_CHANNELS =   3
+    IMAGE_DIM   =   128
+    NB_CHANNELS =   1
     BATCH_SIZE  =   128
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 def createDataset(args,STATS,mode):
@@ -36,8 +36,11 @@ def main(args,STATS):
     start_time=time.time()
     TRAIN_DS=createDataset(args,STATS,'Train')
     TEST_DS =createDataset(args,STATS,'Test')
+    EVAL_DS =createDataset(args,STATS,'Eval')
     createTFrecord(TRAIN_DS,STATS,'Train')
     createTFrecord(TEST_DS,STATS,'Test')
+    createTFrecord(EVAL_DS,STATS,'Eval')
+
     LOG_INFO('Total Time Taken: {} s'.format(time.time()-start_time))
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 # pyACT
-    Version: 0.0.2    
+    Version: 0.0.3    
     Author : Md. Nazmuddoha Ansary
                   
 ![](/info/src_img/python.ico?raw=true )
@@ -102,4 +102,11 @@ The complete preprocessing may take huge time and also cause to crash the system
 For using colab, a **bucket** must be created in **GCS** and connected for:
 * tfrecords
 * checkpoints (custom training Loop)
+
+# MODELS
+### CONVNET3D:
+The model is based on the paper [Learning Spatiotemporal Features with 3D Convolutional Networks](https://ieeexplore.ieee.org/document/7410867)  
+An adapted model structre is as follow:
+
+![](/info/src_img/convNet3D.png?raw=true)
 

@@ -140,7 +140,6 @@ class DataSet(object):
                 random.shuffle(data_dict)
                 data_len =  (len(data_dict) // self.batch_size) * self.batch_size
                 data_dict=data_dict[:data_len] 
-            
             dump_data(self.action_json,data_dict)
             self.nb_seqs=len(data_dict)
 
@@ -156,12 +155,13 @@ class DataSet(object):
                #'class_ids':self.class_list}]
         dump_data(self.info_json,data)
 #--------------------------------------------------------------------------------------------------------------------------------------------------
-def read_image(image_path,image_dim):
+def read_image(image_path,image_dim,expand_flag=False):
     img=tf.keras.preprocessing.image.load_img(image_path,target_size=(image_dim,image_dim),color_mode='grayscale')
     x=tf.keras.preprocessing.image.img_to_array(img,dtype=np.uint8)
-    x=np.expand_dims(x,axis=-1)
+    if expand_flag:
+        x=np.expand_dims(x,axis=-1)
     return x
-def preprocess_sequence(sequnce_data,classes,STATS,img_iden='color_',img_ext='.png'):
+def preprocess_sequence(sequnce_data,classes,STATS,img_iden='color_',img_ext='.png',ext='h5'):
     img_dir=sequnce_data['path']
     id_start=int(sequnce_data['start'])
     id_stop=int(sequnce_data['stop'])
@@ -169,7 +169,10 @@ def preprocess_sequence(sequnce_data,classes,STATS,img_iden='color_',img_ext='.p
     image_paths=[os.path.join(img_dir,'{}{}{}'.format(img_iden,i,img_ext)) for i in range(id_start,id_stop+1)]
     features=[]
     for image_path in image_paths:
-        features.append(read_image(image_path,image_dim=STATS.IMAGE_DIM))
+        if ext=='h5':
+            features.append(read_image(image_path,image_dim=STATS.IMAGE_DIM))
+        else:
+            features.append(read_image(image_path,image_dim=STATS.IMAGE_DIM,expand_flag=True))
     X=np.array(features)
     Y=classes.index(class_id)
     return X,Y
@@ -181,6 +184,28 @@ def sequencesToRecord(sequences,classes,ds_dir,STATS,mode):
         rec_num = i // FS
         LOG_INFO('REC NUM:{}'.format(rec_num))
         saveTFrecord(ds_dir,rec_num,sequence_list,mode,classes,STATS)
+
+def sequencesToH5(sequences,classes,ds_dir,STATS,mode):
+    LOG_INFO('Creating H5s:{}'.format(mode))
+    _pbar=ProgressBar()
+    feats=[]
+    labels=[]
+    for sequence in _pbar(sequences):
+        x,y=preprocess_sequence(sequence,classes,STATS)
+        one_hot=[0 for _ in classes]
+        one_hot[y]=1
+        feats.append(x)
+        labels.append(y)
+    X=np.array(feats)
+    Y=np.vstack(labels)
+    LOG_INFO('X Shape:{}'.format(X.shape))
+    LOG_INFO('Y Shape:{}'.format(Y.shape))
+    base_ds_dir=os.path.dirname(ds_dir)
+    X_path=os.path.join(base_ds_dir,'X_{}.h5'.format(mode))
+    Y_path=os.path.join(base_ds_dir,'Y_{}.h5'.format(mode))
+    saveh5(X_path,X)
+    saveh5(Y_path,Y)
+
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 def saveTFrecord(ds_dir,rec_num,sequence_list,mode,classes,STATS):
     _pbar=ProgressBar()

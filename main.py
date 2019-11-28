@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
-from coreLib.utils import LOG_INFO,DataSet,readJson,sequencesToRecord
+from coreLib.utils import LOG_INFO,DataSet,readJson,sequencesToRecord,sequencesToH5
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 import argparse
 parser = argparse.ArgumentParser(description='Hand Action Recognition Preprocessing')
@@ -33,13 +33,21 @@ def createTFrecord(DS,STATS,mode):
     sequences=readJson(DS.action_json)
     classes=DS.class_list
     sequencesToRecord(sequences,classes,DS.ds_path,STATS,mode)
+
+def createH5Data(DS,STATS,mode):
+    sequences=readJson(DS.action_json)
+    classes=DS.class_list
+    sequencesToH5(sequences,classes,DS.ds_path,STATS,mode)
+
+
 def main(args,STATS):
     start_time=time.time()
     TRAIN_DS=createDataset(args,STATS,'Train')
     EVAL_DS =createDataset(args,STATS,'Eval')
-    createTFrecord(TRAIN_DS,STATS,'Train')
-    createTFrecord(EVAL_DS,STATS,'Eval')
-
+    TEST_DS =createDataset(args,STATS,'Test')
+    createH5Data(TRAIN_DS,STATS,'Train')
+    createH5Data(EVAL_DS,STATS,'Eval')
+    createH5Data(TEST_DS,STATS,'Test')
     LOG_INFO('Total Time Taken: {} s'.format(time.time()-start_time))
 
 if __name__ == "__main__":

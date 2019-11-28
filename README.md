@@ -1,5 +1,5 @@
 # pyACT
-    Version: 0.0.3    
+    Version: 0.0.4    
     Author : Md. Nazmuddoha Ansary
                   
 ![](/info/src_img/python.ico?raw=true )
@@ -7,7 +7,8 @@
 ![](/info/src_img/col.ico?raw=true)
 
 # Version and Requirements
-* tensorflow==1.13.1        
+* tensorflow==1.13.1
+* numpy==1.16.4        
 * Python == 3.6.8
 > Create a Virtualenv and *pip3 install -r requirements.txt*
 
@@ -70,18 +71,19 @@ The complete preprocessing may take huge time and also cause to crash the system
             ├── Eval
             │   ├── action.json
             │   └── info.json
-            ├── TFRECORD
-            │   ├── Train
-            │       ├── Train_0.tfrecord
-            ............................
-            │   │   └── Train_X.tfrecord
-            │   └── Eval
-            │       ├── Eval_0.tfrecord
-            ............................
-            │       └── Eval_X.tfrecord
-            └── Train
-                ├── action.json
-                └── info.json
+            ├── Test
+            │   ├── action.json
+            │   └── info.json
+            ├── Train
+            │   ├── action.json
+            │   └── info.json
+            ├── X_Eval.h5
+            ├── X_Test.h5
+            ├── X_Train.h5
+            ├── Y_Eval.h5
+            ├── Y_Test.h5
+            └── Y_Train.h5
+
 
 
 **ENVIRONMENT**  

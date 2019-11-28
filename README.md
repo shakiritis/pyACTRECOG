@@ -104,7 +104,7 @@ For using colab, a **bucket** must be created in **GCS** and connected for:
 * checkpoints (custom training Loop)
 
 # MODELS
-### CONVNET3D:
+## CONVNET3D:
 The model is based on the paper [Learning Spatiotemporal Features with 3D Convolutional Networks](https://ieeexplore.ieee.org/document/7410867)  
 An adapted model structre is as follow:
 

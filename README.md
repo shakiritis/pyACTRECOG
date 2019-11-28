@@ -108,5 +108,5 @@ For using colab, a **bucket** must be created in **GCS** and connected for:
 The model is based on the paper [Learning Spatiotemporal Features with 3D Convolutional Networks](https://ieeexplore.ieee.org/document/7410867)  
 An adapted model structre is as follow:
 
-![](/info/src_img/convNet3D.png?raw=true)
+![](/info/convNet3D.png?raw=true)
 

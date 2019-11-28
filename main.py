@@ -20,10 +20,10 @@ parser.add_argument("dest_path", help='Destination Data Folder')
 args = parser.parse_args()
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 class STATS:
-    IMAGE_DIM   =   128
+    IMAGE_DIM   =   32
     NB_CHANNELS =   1
     BATCH_SIZE  =   128
-    FILE_LEN    =   700
+    FILE_LEN    =   512
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 def createDataset(args,STATS,mode):
     DS=DataSet(args.src_path,args.dest_path,STATS,mode)

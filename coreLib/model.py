@@ -4,7 +4,6 @@
 """
 from __future__ import print_function
 from termcolor import colored
-
 from tensorflow.keras.models import Model,Sequential
 from tensorflow.keras.layers import Conv3D,MaxPooling3D,Activation,ZeroPadding3D
 from tensorflow.keras.layers import Dropout,Dense,Flatten,GlobalAveragePooling2D
@@ -14,7 +13,7 @@ from tensorflow.keras.utils import plot_model
 
 import os
 #--------------------------------------------------------------------------------------
-def convNet3D(seq_len=6,img_dim=128,nb_channels=1,nb_classes=17):
+def convNet3D(seq_len=6,img_dim=32,nb_channels=1,nb_classes=17):
     in_shape=(seq_len,img_dim,img_dim,nb_channels)
     feature_spec=[128,256,512,512]
     IN=Input(shape=in_shape)

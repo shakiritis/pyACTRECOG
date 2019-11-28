@@ -1,5 +1,5 @@
 # pyACT
-    Version: 0.0.1    
+    Version: 0.0.2    
     Author : Md. Nazmuddoha Ansary
                   
 ![](/info/src_img/python.ico?raw=true )
@@ -67,21 +67,14 @@ The complete preprocessing may take huge time and also cause to crash the system
 * After execution, the provided **dest_path** should have a **DataSet** folder with the following folder tree:
 
 
-            ├── Test
-            │   ├── action.json
-            │   └── info.json
             ├── Eval
             │   ├── action.json
             │   └── info.json
             ├── TFRECORD
-            │   ├── Test
-            │   │   ├── Test_0.tfrecord
-            ...........................
-            │   │   └── Test_X.tfrecord
-            │   └── Train
+            │   ├── Train
             │       ├── Train_0.tfrecord
             ............................
-            │       └── Train_X.tfrecord
+            │   │   └── Train_X.tfrecord
             │   └── Eval
             │       ├── Eval_0.tfrecord
             ............................

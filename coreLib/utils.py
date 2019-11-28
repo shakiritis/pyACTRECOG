@@ -129,13 +129,18 @@ class DataSet(object):
                 else:
                     action_dict.append(seq_dict)
 
-            not_len = len(action_dict) // len(self.class_list)
-            random.shuffle(not_dict)
-            not_dict=not_dict[:not_len]
+            if self.mode!='Test':
+                not_len = len(action_dict) // len(self.class_list)
+                random.shuffle(not_dict)
+                not_dict=not_dict[:not_len]
+            
             data_dict=action_dict+not_dict
-            random.shuffle(data_dict)
-            data_len =  (len(data_dict) // self.batch_size) * self.batch_size
-            data_dict=data_dict[:data_len] 
+            
+            if self.mode!='Test':
+                random.shuffle(data_dict)
+                data_len =  (len(data_dict) // self.batch_size) * self.batch_size
+                data_dict=data_dict[:data_len] 
+            
             dump_data(self.action_json,data_dict)
             self.nb_seqs=len(data_dict)
 
@@ -170,7 +175,7 @@ def preprocess_sequence(sequnce_data,classes,STATS,img_iden='color_',img_ext='.p
     return X,Y
 def sequencesToRecord(sequences,classes,ds_dir,STATS,mode):
     LOG_INFO('Creating TFrecords:{}'.format(mode))
-    FS=STATS.BATCH_SIZE*5
+    FS=STATS.FILE_LEN
     for i in range(0,len(sequences),FS):
         sequence_list= sequences[i:i+FS]        
         rec_num = i // FS
@@ -207,7 +212,7 @@ def data_input_fn(FLAGS):
         NB_CHANNELS     = Depth of Image
         BATCH_SIZE      = batch size for traning
         SHUFFLE_BUFFER  = Buffer Size > Batch Size
-        MODE            = 'Train/Test/Eval'
+        MODE            = 'Train/Eval'
         NB_CLASSES      = Number of classes
         MIN_SEQ_LEN     = Minimul Seqlen for the data
     '''

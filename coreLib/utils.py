@@ -134,8 +134,7 @@ class DataSet(object):
             not_dict=not_dict[:not_len]
             data_dict=action_dict+not_dict
             random.shuffle(data_dict)
-            #data_len =  (len(data_dict) // self.batch_size) * self.batch_size
-            data_len = 100
+            data_len =  (len(data_dict) // self.batch_size) * self.batch_size
             data_dict=data_dict[:data_len] 
             dump_data(self.action_json,data_dict)
             self.nb_seqs=len(data_dict)

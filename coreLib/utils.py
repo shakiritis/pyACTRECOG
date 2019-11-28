@@ -195,7 +195,7 @@ def sequencesToH5(sequences,classes,ds_dir,STATS,mode):
         one_hot=[0 for _ in classes]
         one_hot[y]=1
         feats.append(x)
-        labels.append(y)
+        labels.append(one_hot)
     X=np.array(feats)
     Y=np.vstack(labels)
     LOG_INFO('X Shape:{}'.format(X.shape))

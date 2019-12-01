@@ -47,6 +47,26 @@ def create_dir(base_dir,ext_name):
 def dump_data(file_path,data):
     with open(file_path,'w') as fd:
         json.dump(data,fd,indent=2,ensure_ascii=False)
+
+def read_image(image_path,image_dim):
+    img=tf.keras.preprocessing.image.load_img(image_path,target_size=(image_dim,image_dim))
+    x=tf.keras.preprocessing.image.img_to_array(img)
+    x=(x/255.0).astype(np.float32)
+    return x
+
+def preprocess_sequence(sequnce,class_list,image_dim,img_iden='color_',img_ext='.png'):
+    img_dir=sequnce['path']
+    id_start=int(sequnce['start'])
+    id_stop=int(sequnce['stop'])
+    class_id=sequnce['class']
+    image_paths=[os.path.join(img_dir,'{}{}{}'.format(img_iden,i,img_ext)) for i in range(id_start,id_stop+1)]
+    features=[]
+    for image_path in image_paths:
+        features.append(read_image(image_path,image_dim=image_dim))
+    X=np.array(features)
+    Y=class_list.index(class_id)
+    return X,Y
+
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 class DataSet(object):
     def __init__(self,src_path,dest_path,STATS,mode):
@@ -54,14 +74,12 @@ class DataSet(object):
         self.dest_path = dest_path
         self.mode = mode
         self.ds_path=create_dir(self.dest_path,'DataSet')
-        self.ds_path=create_dir(self.ds_path,self.mode)
-        self.info_json=os.path.join(self.ds_path,'info.json')
-        self.action_json=os.path.join(self.ds_path,'action.json')
+        
         
         self.image_dim  =   STATS.IMAGE_DIM 
         self.nb_channels=   STATS.NB_CHANNELS
         self.batch_size =   STATS.BATCH_SIZE
-
+        self.file_size  =   STATS.FILE_LEN
     
     def __getMinSeqLen(self):
         min_seq_len=1000
@@ -131,102 +149,62 @@ class DataSet(object):
 
             if self.mode!='Test':
                 not_len = len(action_dict) // len(self.class_list)
-                random.shuffle(not_dict)
                 not_dict=not_dict[:not_len]
             
             data_dict=action_dict+not_dict
             
             if self.mode!='Test':
-                random.shuffle(data_dict)
                 data_len =  (len(data_dict) // self.batch_size) * self.batch_size
-                data_dict=data_dict[:data_len] 
-            dump_data(self.action_json,data_dict)
-            self.nb_seqs=len(data_dict)
+                data_dict=data_dict[:data_len]
+        
+        self.nb_seqs=len(data_dict)
+        self.json_path=os.path.join(self.ds_path,'mode:{}_numOfSeqences:{}_minSeqLen:{}.json'.format(self.mode,self.nb_seqs,self.min_seq_len)) 
+        dump_data(self.json_path,data_dict)
+            
 
-    def createDataJson(self):
+    def __createDataJson(self):
         self.__getMinSeqLen()
         self.__getClasses()
         self.__setSeqLabels()
-        data={'nb_classes':len(self.class_list),
-               'seq_len':self.min_seq_len,
-               'image_dim':self.image_dim,
-               'nb_channels':self.nb_channels,
-               'nb_seqs': self.nb_seqs}
-               #'class_ids':self.class_list}]
-        dump_data(self.info_json,data)
-#--------------------------------------------------------------------------------------------------------------------------------------------------
-def read_image(image_path,image_dim,expand_flag=False):
-    img=tf.keras.preprocessing.image.load_img(image_path,target_size=(image_dim,image_dim),color_mode='grayscale')
-    x=tf.keras.preprocessing.image.img_to_array(img,dtype=np.uint8)
-    if expand_flag:
-        x=np.expand_dims(x,axis=-1)
-    return x
-def preprocess_sequence(sequnce_data,classes,STATS,img_iden='color_',img_ext='.png',ext='h5'):
-    img_dir=sequnce_data['path']
-    id_start=int(sequnce_data['start'])
-    id_stop=int(sequnce_data['stop'])
-    class_id=sequnce_data['class']
-    image_paths=[os.path.join(img_dir,'{}{}{}'.format(img_iden,i,img_ext)) for i in range(id_start,id_stop+1)]
-    features=[]
-    for image_path in image_paths:
-        if ext=='h5':
-            features.append(read_image(image_path,image_dim=STATS.IMAGE_DIM))
+
+    
+    def __saveTFrecord(self,rec_num,sequence_list):
+        _pbar=ProgressBar()
+        # Create Saving Directory based on mode
+        save_dir=create_dir(self.ds_path,'TFRECORD')
+        save_dir=create_dir(save_dir,self.mode)
+        tfrecord_name='{}_{}.tfrecord'.format(self.mode,rec_num)
+        tfrecord_path=os.path.join(save_dir,tfrecord_name) 
+        # writting to tfrecords
+        with tf.io.TFRecordWriter(tfrecord_path) as writer:    
+            for seqence in _pbar(sequence_list):
+                X,Y=preprocess_sequence(seqence,self.class_list,self.image_dim)
+                # feature desc
+                data ={ 'feats':tf.train.Feature(float_list=tf.train.FloatList(value=X.flatten())),
+                        'label':tf.train.Feature(int64_list=tf.train.Int64List(value=[Y]))
+                }
+                features=tf.train.Features(feature=data)
+                example= tf.train.Example(features=features)
+                serialized=example.SerializeToString()
+                writer.write(serialized)   
+
+    def __sequencesToRecord(self):
+        LOG_INFO('Creating TFrecords:{}'.format(self.mode))
+        FS=self.file_size
+        sequences=readJson(self.json_path)
+        for i in range(0,len(sequences),FS):
+            sequence_list= sequences[i:i+FS]        
+            rec_num = i // FS
+            LOG_INFO('REC NUM:{}'.format(rec_num))
+            self.__saveTFrecord(rec_num,sequence_list)
+
+    def create(self,EXEC):
+        if EXEC=='json':
+            self.__createDataJson()
         else:
-            features.append(read_image(image_path,image_dim=STATS.IMAGE_DIM,expand_flag=True))
-    X=np.array(features)
-    Y=classes.index(class_id)
-    return X,Y
-def sequencesToRecord(sequences,classes,ds_dir,STATS,mode):
-    LOG_INFO('Creating TFrecords:{}'.format(mode))
-    FS=STATS.FILE_LEN
-    for i in range(0,len(sequences),FS):
-        sequence_list= sequences[i:i+FS]        
-        rec_num = i // FS
-        LOG_INFO('REC NUM:{}'.format(rec_num))
-        saveTFrecord(ds_dir,rec_num,sequence_list,mode,classes,STATS)
+            self.__createDataJson()
+            self.__sequencesToRecord()
 
-def sequencesToH5(sequences,classes,ds_dir,STATS,mode):
-    LOG_INFO('Creating H5s:{}'.format(mode))
-    _pbar=ProgressBar()
-    feats=[]
-    labels=[]
-    for sequence in _pbar(sequences):
-        x,y=preprocess_sequence(sequence,classes,STATS)
-        one_hot=[0 for _ in classes]
-        one_hot[y]=1
-        feats.append(x)
-        labels.append(one_hot)
-    X=np.array(feats)
-    Y=np.vstack(labels)
-    LOG_INFO('X Shape:{}'.format(X.shape))
-    LOG_INFO('Y Shape:{}'.format(Y.shape))
-    base_ds_dir=os.path.dirname(ds_dir)
-    X_path=os.path.join(base_ds_dir,'X_{}.h5'.format(mode))
-    Y_path=os.path.join(base_ds_dir,'Y_{}.h5'.format(mode))
-    saveh5(X_path,X)
-    saveh5(Y_path,Y)
-
-#--------------------------------------------------------------------------------------------------------------------------------------------------
-def saveTFrecord(ds_dir,rec_num,sequence_list,mode,classes,STATS):
-    _pbar=ProgressBar()
-    # Create Saving Directory based on mode
-    base_ds_dir=os.path.dirname(ds_dir)
-    save_dir=create_dir(base_ds_dir,'TFRECORD')
-    save_dir=create_dir(save_dir,mode)
-    tfrecord_name='{}_{}.tfrecord'.format(mode,rec_num)
-    tfrecord_path=os.path.join(save_dir,tfrecord_name) 
-    # writting to tfrecords
-    with tf.io.TFRecordWriter(tfrecord_path) as writer:    
-        for seqence in _pbar(sequence_list):
-            X,Y=preprocess_sequence(seqence,classes,STATS)
-            # feature desc
-            data ={ 'feats':tf.train.Feature(int64_list=tf.train.Int64List(value=X.flatten())),
-                    'label':tf.train.Feature(int64_list=tf.train.Int64List(value=[Y]))
-            }
-            features=tf.train.Features(feature=data)
-            example= tf.train.Example(features=features)
-            serialized=example.SerializeToString()
-            writer.write(serialized)   
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 def data_input_fn(FLAGS): 
     '''
@@ -243,21 +221,21 @@ def data_input_fn(FLAGS):
     '''
     
     def _parser(example):
-        data  ={ 'feats':tf.io.FixedLenFeature((FLAGS.MIN_SEQ_LEN,FLAGS.IMAGE_DIM,FLAGS.IMAGE_DIM,FLAGS.NB_CHANNELS),tf.int64),
+        data  ={ 'feats':tf.io.FixedLenFeature((FLAGS.MIN_SEQ_LEN,FLAGS.IMAGE_DIM,FLAGS.IMAGE_DIM,FLAGS.NB_CHANNELS),tf.float32),
                  'label':tf.io.FixedLenFeature((),tf.int64)
         }    
         parsed_example=tf.io.parse_single_example(example,data)
-        feats=tf.cast(parsed_example['feats'],tf.float32)/255.0
+        feats=tf.cast(parsed_example['feats'],tf.float32)
         feats=tf.reshape(feats,(FLAGS.MIN_SEQ_LEN,FLAGS.IMAGE_DIM,FLAGS.IMAGE_DIM,FLAGS.NB_CHANNELS))
         
         idx = tf.cast(parsed_example['label'], tf.int64)
         label=tf.one_hot(idx,FLAGS.NB_CLASSES,dtype=tf.int64)
         return feats,label
 
-    file_paths=glob(os.path.join(FLAGS.TFRECORDS_DIR,'{}*.tfrecord'.format(FLAGS.MODE)))
+    file_paths=glob(os.path.join(FLAGS.TFRECORDS_DIR,FLAGS.MODE,'{}*.tfrecord'.format(FLAGS.MODE)))
     dataset = tf.data.TFRecordDataset(file_paths)
     dataset = dataset.map(_parser)
-    dataset = dataset.shuffle(FLAGS.SHUFFLE_BUFFER,reshuffle_each_iteration=True)
     dataset = dataset.repeat()
+    dataset = dataset.shuffle(FLAGS.SHUFFLE_BUFFER,reshuffle_each_iteration=True)
     dataset = dataset.batch(FLAGS.BATCH_SIZE,drop_remainder=True)
     return dataset

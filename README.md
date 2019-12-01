@@ -1,5 +1,5 @@
 # pyACT
-    Version: 0.0.4    
+    Version: 0.0.6    
     Author : Md. Nazmuddoha Ansary
                   
 ![](/info/src_img/python.ico?raw=true )
@@ -68,21 +68,58 @@ The complete preprocessing may take huge time and also cause to crash the system
 * After execution, the provided **dest_path** should have a **DataSet** folder with the following folder tree:
 
 
-            ├── Eval
-            │   ├── action.json
-            │   └── info.json
-            ├── Test
-            │   ├── action.json
-            │   └── info.json
-            ├── Train
-            │   ├── action.json
-            │   └── info.json
-            ├── X_Eval.h5
-            ├── X_Test.h5
-            ├── X_Train.h5
-            ├── Y_Eval.h5
-            ├── Y_Test.h5
-            └── Y_Train.h5
+            ├── mode:Eval_numOfSeqences:3456_minSeqLen:6.json
+            ├── mode:Test_numOfSeqences:21785_minSeqLen:6.json
+            ├── mode:Train_numOfSeqences:49920_minSeqLen:6.json
+            └── TFRECORD
+                ├── Eval
+                │   ├── Eval_0.tfrecord
+                │   ├── Eval_1.tfrecord
+                │   ├── Eval_2.tfrecord
+                │   ├── Eval_3.tfrecord
+                │   └── Eval_4.tfrecord
+                └── Train
+                    ├── Train_0.tfrecord
+                    ├── Train_10.tfrecord
+                    ├── Train_11.tfrecord
+                    ├── Train_12.tfrecord
+                    ├── Train_13.tfrecord
+                    ├── Train_14.tfrecord
+                    ├── Train_15.tfrecord
+                    ├── Train_16.tfrecord
+                    ├── Train_17.tfrecord
+                    ├── Train_18.tfrecord
+                    ├── Train_19.tfrecord
+                    ├── Train_1.tfrecord
+                    ├── Train_20.tfrecord
+                    ├── Train_21.tfrecord
+                    ├── Train_22.tfrecord
+                    ├── Train_23.tfrecord
+                    ├── Train_24.tfrecord
+                    ├── Train_25.tfrecord
+                    ├── Train_26.tfrecord
+                    ├── Train_27.tfrecord
+                    ├── Train_28.tfrecord
+                    ├── Train_29.tfrecord
+                    ├── Train_2.tfrecord
+                    ├── Train_30.tfrecord
+                    ├── Train_31.tfrecord
+                    ├── Train_32.tfrecord
+                    ├── Train_33.tfrecord
+                    ├── Train_34.tfrecord
+                    ├── Train_35.tfrecord
+                    ├── Train_36.tfrecord
+                    ├── Train_37.tfrecord
+                    ├── Train_38.tfrecord
+                    ├── Train_3.tfrecord
+                    ├── Train_4.tfrecord
+                    ├── Train_5.tfrecord
+                    ├── Train_6.tfrecord
+                    ├── Train_7.tfrecord
+                    ├── Train_8.tfrecord
+                    └── Train_9.tfrecord
+
+* 3 directories, 47 files
 
 
 

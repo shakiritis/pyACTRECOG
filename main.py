@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
-from coreLib.utils import LOG_INFO,DataSet,readJson,sequencesToRecord,sequencesToH5
+from coreLib.utils import LOG_INFO,DataSet
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 import argparse
 parser = argparse.ArgumentParser(description='Hand Action Recognition Preprocessing')
@@ -21,33 +21,20 @@ args = parser.parse_args()
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 class STATS:
     IMAGE_DIM   =   32
-    NB_CHANNELS =   1
+    NB_CHANNELS =   3
     BATCH_SIZE  =   128
-    FILE_LEN    =   512
+    FILE_LEN    =   1280
 #--------------------------------------------------------------------------------------------------------------------------------------------------
-def createDataset(args,STATS,mode):
+def createDataset(args,STATS,mode,EXEC):
     DS=DataSet(args.src_path,args.dest_path,STATS,mode)
-    DS.createDataJson()
-    return DS
-def createTFrecord(DS,STATS,mode):
-    sequences=readJson(DS.action_json)
-    classes=DS.class_list
-    sequencesToRecord(sequences,classes,DS.ds_path,STATS,mode)
-
-def createH5Data(DS,STATS,mode):
-    sequences=readJson(DS.action_json)
-    classes=DS.class_list
-    sequencesToH5(sequences,classes,DS.ds_path,STATS,mode)
-
+    DS.create(EXEC)
 
 def main(args,STATS):
     start_time=time.time()
-    TRAIN_DS=createDataset(args,STATS,'Train')
-    EVAL_DS =createDataset(args,STATS,'Eval')
-    TEST_DS =createDataset(args,STATS,'Test')
-    createH5Data(TRAIN_DS,STATS,'Train')
-    createH5Data(EVAL_DS,STATS,'Eval')
-    createH5Data(TEST_DS,STATS,'Test')
+    createDataset(args,STATS,'Train','tfrecord')
+    createDataset(args,STATS,'Test','json')
+    createDataset(args,STATS,'Eval','tfrecord')
+    
     LOG_INFO('Total Time Taken: {} s'.format(time.time()-start_time))
 
 if __name__ == "__main__":

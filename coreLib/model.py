@@ -13,7 +13,7 @@ from tensorflow.keras.utils import plot_model
 
 import os
 #--------------------------------------------------------------------------------------
-def convNet3D(seq_len=6,img_dim=32,nb_channels=1,nb_classes=17):
+def convNet3D(seq_len=6,img_dim=32,nb_channels=3,nb_classes=17):
     in_shape=(seq_len,img_dim,img_dim,nb_channels)
     feature_spec=[128,256,512,512]
     IN=Input(shape=in_shape)
@@ -38,7 +38,8 @@ def convNet3D(seq_len=6,img_dim=32,nb_channels=1,nb_classes=17):
     return Model(inputs=IN,outputs=X)
 #--------------------------------------------------------------------------------------
 if __name__=='__main__':
+    info_path='/media/ansary/DriveData/HandAction/pyACTRECOG/info/'
     model=convNet3D()
     model.summary()
-    plot_model(model,to_file='convNet3D.png',show_layer_names=True,show_shapes=True)
+    plot_model(model,to_file=os.path.join(info_path,'convNet3D.png'),show_layer_names=True,show_shapes=True)
     

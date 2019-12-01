@@ -13,7 +13,7 @@ from tensorflow.keras.utils import plot_model
 
 import os
 #--------------------------------------------------------------------------------------
-def convNet3D(seq_len=6,img_dim=32,nb_channels=3,nb_classes=17):
+def convNet3D(seq_len=6,img_dim=64,nb_channels=3,nb_classes=17):
     in_shape=(seq_len,img_dim,img_dim,nb_channels)
     feature_spec=[128,256,512,512]
     IN=Input(shape=in_shape)

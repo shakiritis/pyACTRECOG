@@ -22,7 +22,7 @@ import tensorflow as tf
 #--------------------------------------------------------------------------------------------------
 class FLAGS:
     TFRECORDS_DIR   = DIR
-    IMAGE_DIM       = 32
+    IMAGE_DIM       = 64
     NB_CHANNELS     = 3
     BATCH_SIZE      = 2
     SHUFFLE_BUFFER  = 100

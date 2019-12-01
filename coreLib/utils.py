@@ -18,6 +18,11 @@ from glob import glob
 from progressbar import ProgressBar
 
 import tensorflow as tf
+
+from PIL import Image
+from PIL import ImageFont
+from PIL import ImageDraw
+
 #---------------------------------------------------------------------------
 def readJson(file_name):
     return json.load(open(file_name))
@@ -142,20 +147,20 @@ class DataSet(object):
                           'start':id_start,
                           'stop' :id_stop,
                           'class':final_class}
-                if final_class=='no-action':
-                    not_dict.append(seq_dict)
+                if self.mode!='Test': 
+                    if final_class=='no-action':
+                        not_dict.append(seq_dict)
+                    else:
+                        action_dict.append(seq_dict)
                 else:
-                    action_dict.append(seq_dict)
-
+                    data_dict.append(seq_dict)
             if self.mode!='Test':
                 not_len = len(action_dict) // len(self.class_list)
                 not_dict=not_dict[:not_len]
-            
-            data_dict=action_dict+not_dict
-            
-            if self.mode!='Test':
+                data_dict=action_dict+not_dict
                 data_len =  (len(data_dict) // self.batch_size) * self.batch_size
                 data_dict=data_dict[:data_len]
+                random.shuffle(data_dict)
         
         self.nb_seqs=len(data_dict)
         self.json_path=os.path.join(self.ds_path,'mode:{}_numOfSeqences:{}_minSeqLen:{}.json'.format(self.mode,self.nb_seqs,self.min_seq_len)) 
@@ -239,3 +244,36 @@ def data_input_fn(FLAGS):
     dataset = dataset.shuffle(FLAGS.SHUFFLE_BUFFER,reshuffle_each_iteration=True)
     dataset = dataset.batch(FLAGS.BATCH_SIZE,drop_remainder=True)
     return dataset
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+def createLabeledImages(img_path,gt_id,pred_id,save_dir,im_no,font_file):
+    # pad image
+    img=tf.keras.preprocessing.image.load_img(img_path)
+    arr=tf.keras.preprocessing.image.img_to_array(img,dtype=np.uint8)
+    pad=abs(arr.shape[0]-arr.shape[1])//2
+    if arr.shape[0] > arr.shape[1]:
+        pad_axis=1
+        dim2=pad
+        dim1=arr.shape[0]
+        TFIT=arr.shape[1]
+    else:
+        pad_axis=0
+        dim1=pad
+        dim2=arr.shape[1]
+        TFIT=arr.shape[0]
+    arr_pad=np.zeros((dim1,dim2,arr.shape[-1]),dtype=np.uint8)
+    new_arr=np.concatenate((arr,arr_pad),axis=pad_axis)
+    # draw text
+    img=Image.fromarray(new_arr)
+    draw = ImageDraw.Draw(img)
+    FONT_SIZE=pad//2
+    font = ImageFont.truetype(font_file, FONT_SIZE)
+    TEXT_PRED='PREDICTION: {}'.format(gt_id)
+    TEXT_GT  ='GROUND_TRUTH: {}'.format(pred_id)
+    draw.text((0, TFIT),TEXT_GT,(255,255,0),font=font)
+    if pred_id==gt_id:
+        col=(0,255,0)
+    else:
+        col=(255,0,0)
+    draw.text((0, TFIT+FONT_SIZE),TEXT_PRED,col,font=font)
+    # save image
+    img.save(os.path.join(save_dir,'seq_{}.jpg'.format(im_no)))

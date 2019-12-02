@@ -20,7 +20,7 @@ Dataset is taken from [Hand Action Detection from Depth Sequences](https://web.b
 * Get a general idea about the [dataset info](/info/data.md) 
 * The **Train1** and **Train2** are combined in one single folder named **Train**
 * A random user is chosen for **Eval** Data Within **Train** data
-* The **Test** the original source are kept
+* For **Test** the original source are kept
 
 > Folder tree for the **src_path** for **main.py** in implementation case is as follows:
 

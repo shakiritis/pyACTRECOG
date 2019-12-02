@@ -1,4 +1,4 @@
-# pyACT
+# pyACTRECOG
     Version: 1.0.0    
     Author : Md. Nazmuddoha Ansary
                   

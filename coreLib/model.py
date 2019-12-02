@@ -45,13 +45,13 @@ def LRCN(seq_len=6,img_dim=64,nb_channels=3,nb_classes=17):
     X=TimeDistributed(Conv2D(128, (3, 3), strides=(2, 2), padding='same'))(IN)
     X=TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2)))(X)
     X=TimeDistributed(Activation('relu'))(X)
-    X=TimeDistributed(BatchNormalization())(X)
+    X=BatchNormalization()(X)
     # conv layer gropus
     for nb_filter in feature_spec:
         X=TimeDistributed(Conv2D(nb_filter, (3, 3), strides=(2, 2), padding='same'))(X)
         X=TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2)))(X)
         X=TimeDistributed(Activation('relu'))(X)
-        X=TimeDistributed(BatchNormalization())(X)
+        X=BatchNormalization()(X)
         
     # FC layers group
     X=TimeDistributed(Flatten())(X)

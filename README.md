@@ -1,5 +1,5 @@
 # pyACTRECOG
-    Version: 1.0.0    
+    Version: 1.0.1    
     Author : Md. Nazmuddoha Ansary
                   
 ![](/info/src_img/python.ico?raw=true )
@@ -144,7 +144,7 @@ The adapted model structre is as follow:
 The model is based on the paper [Long-Term Recurrent Convolutional Networks for Visual Recognition and Description](https://ieeexplore.ieee.org/document/7558228) 
 
 * **Differences from Original Paper Version**:
-A Custom **ConvBlock** like structre is used.
+A Custom **ConvBlock** like structre is used. Also please note that the **BatchNorm** layers are **not time distributed**.
 
 The adapted model structre is as follow:
 

@@ -11,8 +11,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
-from coreLib.model import convNet3D
-from coreLib.utils import LOG_INFO,preprocess_sequence,readJson,dump_data
+from coreLib.model import convNet3D,LRCN
+from coreLib.utils import LOG_INFO,preprocess_sequence,readJson,dump_data,create_dir
 
 from sklearn import metrics
 from tensorflow.keras.models import load_model
@@ -22,13 +22,13 @@ from progressbar import ProgressBar
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 import argparse
 parser = argparse.ArgumentParser(description='Hand Action Recognition Testing')
-parser.add_argument("model_name", help='name of the model. Available:ConvNet3D')
+parser.add_argument("model_name", help='name of the model. Available:ConvNet3D,LRCN')
 parser.add_argument("model_path", help='Path for model weights')
 parser.add_argument("json_path", help='Path for Test Sequence json')
 args = parser.parse_args()
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 class FLAGS:
-    IMAGE_DIM       = 32
+    IMAGE_DIM       = 64
     NB_CHANNELS     = 3
     NB_CLASSES      = 17
     MIN_SEQ_LEN     = 6
@@ -61,6 +61,12 @@ def main(args):
                         img_dim=FLAGS.IMAGE_DIM,
                         nb_channels=FLAGS.NB_CHANNELS,
                         nb_classes=FLAGS.NB_CLASSES)
+    elif args.model_name=='LRCN':
+         model=LRCN(seq_len=FLAGS.MIN_SEQ_LEN,
+                        img_dim=FLAGS.IMAGE_DIM,
+                        nb_channels=FLAGS.NB_CHANNELS,
+                        nb_classes=FLAGS.NB_CLASSES)
+    
     else:
         raise ValueError('CHECK Proper Model Name')
 
@@ -87,10 +93,12 @@ def main(args):
         VID_DICT.append(IMG_DICT)
 
     DS_DIR=os.path.dirname(args.json_path)
-    RES_JSON=os.path.join(DS_DIR,'video_sec_{}.json'.format(args.model_name))
+    base_dir=create_dir(DS_DIR,'Results')
+    RES_JSON=os.path.join(base_dir,'video_sec_{}.json'.format(args.model_name))
     dump_data(RES_JSON,VID_DICT)
     prediction_accuracy = 100* metrics.f1_score(GROUNT_TRUTHS,PREDICTIONS, average = 'micro')	   
     LOG_INFO('Test data Prediction Accuracy [F1 accuracy]: {}'.format(prediction_accuracy))
+    LOG_INFO('Results Generated at:{}'.format(base_dir))
 
 if __name__ == "__main__":
     main(args)

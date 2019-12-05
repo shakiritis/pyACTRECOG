@@ -13,21 +13,19 @@ from tensorflow.keras.utils import plot_model
 
 import os
 #--------------------------------------------------------------------------------------
-def convNet3D(seq_len=6,img_dim=64,nb_channels=3,nb_classes=17,drop_out=0.2):
+def convNet3D(seq_len=6,img_dim=64,nb_channels=3,nb_classes=17,drop_out=0.2,weight_decay=1e-4):
     in_shape=(seq_len,img_dim,img_dim,nb_channels)
     feature_spec=[128,256,512,512]
     IN=Input(shape=in_shape)
     # 1st layer group	    
-    X=Conv3D(64,(3, 3, 3), activation='relu',padding='same', name='INITIAL_CONV3D')(IN)
+    X=Conv3D(64,(3, 3, 3), activation='relu',padding='same', name='INITIAL_CONV3D',kernel_regularizer=l2(weight_decay))(IN)
     X=MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2), name='INITIAL_POOL3D')(X)
     X=Activation('relu')(X)
     X=BatchNormalization()(X)	    
     # conv layer gropus	    
     for n,nb_filter in enumerate(feature_spec):	   
-        X=Conv3D(nb_filter, (3, 3, 3), activation='relu',padding='same', name='CONV3D_{}_C1'.format(n+1))(X)
-        X=Conv3D(nb_filter, (3, 3, 3), activation='relu',padding='same', name='CONV3D_{}_c2'.format(n+1))(X)
-        if drop_out:
-            X=Dropout(drop_out,name='DROP_OUT_{}'.format(n+1))(X)	    
+        X=Conv3D(nb_filter, (3, 3, 3), activation='relu',padding='same',kernel_regularizer=l2(weight_decay), name='CONV3D_{}_C1'.format(n+1))(X)
+        X=Conv3D(nb_filter, (3, 3, 3), activation='relu',padding='same',kernel_regularizer=l2(weight_decay), name='CONV3D_{}_c2'.format(n+1))(X)
         X=MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2), name='POOL3D_{}'.format(n+1))(X)
         X=Activation('relu')(X)
         X=BatchNormalization()(X)	           
@@ -42,21 +40,19 @@ def convNet3D(seq_len=6,img_dim=64,nb_channels=3,nb_classes=17,drop_out=0.2):
     X=Dense(nb_classes, activation='softmax',name='DENSE_CLASS')(X)
     return Model(inputs=IN,outputs=X)
 
-def LRCN(seq_len=6,img_dim=64,nb_channels=3,nb_classes=17,drop_out=0.2):
+def LRCN(seq_len=6,img_dim=64,nb_channels=3,nb_classes=17,drop_out=0.2,weight_decay=1e-4):
     in_shape=(seq_len,img_dim,img_dim,nb_channels)
     feature_spec=[256,512]
     layer_specs=[256,128,64]
     IN=Input(shape=in_shape)
     # first (non-default) block
-    X=TimeDistributed(Conv2D(128, (3, 3), strides=(2, 2), padding='same'))(IN)
+    X=TimeDistributed(Conv2D(128, (3, 3), strides=(2, 2), padding='same',kernel_regularizer=l2(weight_decay)))(IN)
     X=TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2)))(X)
     X=TimeDistributed(Activation('relu'))(X)
     X=BatchNormalization()(X)
     # conv layer gropus
     for nb_filter in feature_spec:
-        X=TimeDistributed(Conv2D(nb_filter, (3, 3), strides=(2, 2), padding='same'))(X)
-        if drop_out:
-            X=Dropout(drop_out)(X)	    
+        X=TimeDistributed(Conv2D(nb_filter, (3, 3), strides=(2, 2), padding='same',kernel_regularizer=l2(weight_decay)))(X)
         X=TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2)))(X)
         X=TimeDistributed(Activation('relu'))(X)
         X=BatchNormalization()(X)
@@ -67,6 +63,12 @@ def LRCN(seq_len=6,img_dim=64,nb_channels=3,nb_classes=17,drop_out=0.2):
         X=LSTM(layer_specs[i],return_sequences=True,activation='tanh')(X)
     # last layers
     X=LSTM(32,return_sequences=False,activation='tanh')(X)
+    X=Dense(28, activation='relu', name='DENSE_1')(X)
+    if drop_out:
+            X=Dropout(drop_out,name='DROP_OUT_D-1')(X)	    
+    X=Dense(24, activation='relu', name='DENSE_2')(X)
+    if drop_out:
+            X=Dropout(drop_out,name='DROP_OUT_D-2')(X)	    
     X=Dense(nb_classes, activation='softmax',name='DENSE_CLASS')(X)
     return Model(inputs=IN,outputs=X)
 

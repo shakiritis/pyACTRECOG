@@ -1,5 +1,5 @@
 # pyACTRECOG
-    Version: 1.0.2    
+    Version: 1.0.3    
     Author : Md. Nazmuddoha Ansary
                   
 ![](/info/src_img/python.ico?raw=true )
@@ -133,6 +133,7 @@ The model is based on the paper [Learning Spatiotemporal Features with 3D Convol
 * **Differences from Original Paper Version**:
 1. ***BatchNormalization*** is used after pooling
 2. No ***zero padding*** at last conv groups
+3. **Weight regularizers** are used to avoid overfitting
 
 
 The adapted model structre is as follow:
@@ -143,7 +144,9 @@ The adapted model structre is as follow:
 The model is based on the paper [Long-Term Recurrent Convolutional Networks for Visual Recognition and Description](https://ieeexplore.ieee.org/document/7558228) 
 
 * **Differences from Original Paper Version**:
-A Custom **ConvBlock** like structre is used. Also please note that the **BatchNorm** layers are **not time distributed**.
+1. A Custom **ConvBlock** like structre is used. 
+2. The **BatchNorm** layers are **not time distributed**.
+3. **Weight regularizers** are used to avoid overfitting
 
 The adapted model structre is as follow:
 

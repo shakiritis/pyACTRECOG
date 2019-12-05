@@ -1,5 +1,5 @@
 # pyACTRECOG
-    Version: 1.0.1    
+    Version: 1.0.2    
     Author : Md. Nazmuddoha Ansary
                   
 ![](/info/src_img/python.ico?raw=true )
@@ -132,8 +132,7 @@ The model is based on the paper [Learning Spatiotemporal Features with 3D Convol
 
 * **Differences from Original Paper Version**:
 1. ***BatchNormalization*** is used after pooling
-2. ***Dropouts*** are not used
-3. No ***zero padding*** at last conv groups
+2. No ***zero padding*** at last conv groups
 
 
 The adapted model structre is as follow:

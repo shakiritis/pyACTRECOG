@@ -31,9 +31,9 @@ def createDataset(args,STATS,mode,EXEC):
 
 def main(args,STATS):
     start_time=time.time()
-    createDataset(args,STATS,'Train','tfrec')
     createDataset(args,STATS,'Test','json')
-    createDataset(args,STATS,'Eval','tfrec')
+    createDataset(args,STATS,'Train','tfrecord')
+    
     
     LOG_INFO('Total Time Taken: {} s'.format(time.time()-start_time))
 

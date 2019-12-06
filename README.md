@@ -1,5 +1,5 @@
 # pyACTRECOG
-    Version: 1.0.3    
+    Version: 1.0.4    
     Author : Md. Nazmuddoha Ansary
                   
 ![](/info/src_img/python.ico?raw=true )
@@ -19,14 +19,11 @@ Dataset is taken from [Hand Action Detection from Depth Sequences](https://web.b
 
 * Get a general idea about the [dataset info](/info/data.md) 
 * The **Train1** and **Train2** are combined in one single folder named **Train**
-* A random user is chosen for **Eval** Data Within **Train** data
 * For **Test** the original source are kept
 
 > Folder tree for the **src_path** for **main.py** in implementation case is as follows:
 
 
-            ├── Eval
-            │   └── LN
             ├── Test
             │   ├── alvin
             │   ├── etienne
@@ -40,12 +37,14 @@ Dataset is taken from [Hand Action Detection from Depth Sequences](https://web.b
                 ├── gulin
                 ├── justin
                 ├── lakshmi
+                ├── LN
                 ├── malay
                 ├── marc
                 ├── michael
                 ├── xuchi
                 ├── yizhou
                 └── yongzhong
+
 
             
 # Preprocessing
@@ -63,49 +62,26 @@ Dataset is taken from [Hand Action Detection from Depth Sequences](https://web.b
             optional arguments:
             -h, --help  show this help message and exit
 
+* **Data Augmentation**: The train data is randomized to have flips and rotation .  
 
 * The complete preprocessing may take huge time and also cause to crash the system due to high memory useage. A way around is built for **Ubuntu** users is to run **sudo ./clear_mem.sh** in parallel with **main.py**
+
+* For this specific case the program was allowed run for **48 hours** straight and if produced **~160GB** Data in tfrecord. 
 
 * After execution, the provided **dest_path** should have a **DataSet** folder with the following folder tree:
 
 
-            ├── mode:Eval_numOfSeqences:3456_minSeqLen:6.json
             ├── mode:Test_numOfSeqences:21785_minSeqLen:6.json
-            ├── mode:Train_numOfSeqences:49920_minSeqLen:6.json
+            ├── mode:Train_numOfSeqences:1711360_minSeqLen:6.json
             └── TFRECORD
-                ├── Eval
-                │   ├── Eval_0.tfrecord
-                │   ├── Eval_1.tfrecord
-                │   ├── Eval_2.tfrecord
-                │   ├── Eval_3.tfrecord
-                │   ├── Eval_4.tfrecord
-                │   ├── Eval_5.tfrecord
-                │   └── Eval_6.tfrecord
                 └── Train
-                    ├── Train_0.tfrecord
-                    ├── Train_10.tfrecord
-                    ├── Train_11.tfrecord
-                    ├── Train_12.tfrecord
-                    ├── Train_13.tfrecord
-                    ├── Train_14.tfrecord
-                    ├── Train_15.tfrecord
-                    ├── Train_16.tfrecord
-                    ├── Train_17.tfrecord
-                    ├── Train_18.tfrecord
-                    ├── Train_19.tfrecord
-                    ├── Train_1.tfrecord
-                    ├── Train_20.tfrecord
-                    ├── Train_21.tfrecord
-                    .....................
-                    .....................
-                    .....................
-                    ├── Train_95.tfrecord
-                    ├── Train_96.tfrecord
-                    ├── Train_97.tfrecord
-                    └── Train_9.tfrecord
+                    
+* The **Train** folder contains all the sequence data in **Train_{SOME_NUMBER}.tftrcord** files.
 
-* 3 directories, 108 files
+* For Creating **Eval** data, we randomly choose 10 tfrecords manually and the **Train** data had 999 tfrecords.
 
+* Total Train Sequence Data = **512000**
+* Total Eval  Sequence Data = **5120**
 
 
 **ENVIRONMENT**  

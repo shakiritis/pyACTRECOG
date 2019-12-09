@@ -80,8 +80,9 @@ Dataset is taken from [Hand Action Detection from Depth Sequences](https://web.b
 
 * For Creating **Eval** data, we randomly choose 10 tfrecords manually and the **Train** data had 999 tfrecords.
 
-* Total Train Sequence Data = **512000**
-* Total Eval  Sequence Data = **5120**
+**Due to Huge Data Volume only a certain amout of data was uploaded to GCS**:
+* Total Train Sequence Data = **512*637**=**326144**
+* Total Eval  Sequence Data = **512*10** =**5120**
 
 
 **ENVIRONMENT**  

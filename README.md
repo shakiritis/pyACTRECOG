@@ -1,6 +1,6 @@
 # pyACTRECOG
     Version: 1.0.4    
-    Author : Md. Nazmuddoha Ansary
+    Author : Md. Shakir Hossain. Md. Nazmuddoha Ansary
                   
 ![](/info/src_img/python.ico?raw=true )
 ![](/info/src_img/tensorflow.ico?raw=true)
